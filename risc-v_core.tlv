@@ -103,6 +103,12 @@
    $is_addi = $dec_bits ==? 11'bx_000_0010011;
    $is_add = $dec_bits ==? 11'bx_000_0110011;
    
+   // ALU
+   $result[31:0] =
+      $is_addi ? $src1_value + $imm :
+      $is_add ? $src1_value + $src2_value :
+      32'b0;
+   
    `BOGUS_USE($rd
               $rd_valid
               $funct3
@@ -126,6 +132,7 @@
    *passed = 1'b0;
    *failed = *cyc_cnt > M4_MAX_CYC;
    
+   // Link up read/write signals to register file
    m4+rf(32, 32, $reset, $wr_en, $wr_index[4:0], $wr_data[31:0], $rs1_valid, $rs1, $src1_value, $rs2_valid, $rs2, $src2_value)
    //m4+dmem(32, 32, $reset, $addr[4:0], $wr_en, $wr_data[31:0], $rd_en, $rd_data)
    m4+cpu_viz()
