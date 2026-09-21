@@ -42,11 +42,14 @@
    
    $reset = *reset;
    
+   // Program counter
    $next_pc[31:0] = $reset ? 32'b0 : $pc + 4;
    $pc[31:0] = >>1$next_pc[31:0];
    
+   // Read instruction memory
    `READONLY_MEM($pc, $$instr[31:0])
    
+   // Decode instruction type
    $is_u_instr = $instr[6:2] ==? 5'b0x101;
    
    $is_i_instr = $instr[6:2] == 5'b00000 ||
@@ -67,6 +70,7 @@
    
    $is_j_instr = $instr[6:2] == 5'b11011;
    
+   // Decode instruction fields
    $rd[4:0] = $instr[11:7];
    $funct3[2:0] = $instr[14:12];
    $rs1[4:0] = $instr[19:15];
@@ -85,7 +89,38 @@
    $rs2_valid = $is_r_instr || $is_s_instr || $is_b_instr;
    $imm_valid = $is_i_instr || $is_s_instr || $is_b_instr || $is_u_instr || $is_j_instr;
    
-   `BOGUS_USE($rd $rd_valid $funct3 $funct3_valid $rs1 $rs1_valid $rs2 $rs2_valid $imm_valid)
+   $opcode[6:0] = $instr[6:0];
+   
+   // Decode instruction
+   $dec_bits[10:0] = {$instr[30], $funct3, $opcode};
+   
+   $is_beq = $dec_bits ==? 11'bx_000_1100011;
+   $is_bne = $dec_bits ==? 11'bx_001_1100011;
+   $is_blt = $dec_bits ==? 11'bx_100_1100011;
+   $is_bge = $dec_bits ==? 11'bx_101_1100011;
+   $is_bltu = $dec_bits ==? 11'bx_110_1100011;
+   $is_bgeu = $dec_bits ==? 11'bx_111_1100011;
+   $is_addi = $dec_bits ==? 11'bx_000_0010011;
+   $is_add = $dec_bits ==? 11'bx_000_0110011;
+   
+   `BOGUS_USE($rd
+              $rd_valid
+              $funct3
+              $funct3_valid
+              $rs1
+              $rs1_valid
+              $rs2
+              $rs2_valid
+              $imm
+              $imm_valid
+              $is_beq
+              $is_bne
+              $is_bltu
+              $is_blt
+              $is_bgeu
+              $is_bge
+              $is_add
+              $is_addi)
    
    // Assert these to end simulation (before Makerchip cycle limit).
    *passed = 1'b0;
