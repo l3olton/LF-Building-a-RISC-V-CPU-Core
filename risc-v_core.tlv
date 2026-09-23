@@ -123,24 +123,7 @@
    
    $br_tgt_pc[31:0] = $pc + $imm;
    
-   `BOGUS_USE($rd
-              $rd_valid
-              $funct3
-              $funct3_valid
-              $rs1
-              $rs1_valid
-              $rs2
-              $rs2_valid
-              $imm
-              $imm_valid
-              $is_beq
-              $is_bne
-              $is_bltu
-              $is_blt
-              $is_bgeu
-              $is_bge
-              $is_add
-              $is_addi)
+   `BOGUS_USE($funct3_valid $imm_valid)
    
    // Assert these to end simulation (before Makerchip cycle limit).
    m4+tb()
@@ -152,3 +135,4 @@
    m4+cpu_viz()
 \SV
    endmodule
+
