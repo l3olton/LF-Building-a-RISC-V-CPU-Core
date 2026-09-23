@@ -44,7 +44,9 @@
    $reset = *reset;
    
    // Program counter
-   $next_pc[31:0] = $reset ? 32'b0 : $pc + 4;
+   $next_pc[31:0] = $reset ? 32'b0 :
+                    $taken_br ? $br_tgt_pc :
+                    $pc + 4;
    $pc[31:0] = >>1$next_pc[31:0];
    
    // Read instruction memory
@@ -110,6 +112,17 @@
       $is_add ? $src1_value + $src2_value :
       32'b0;
    
+   // Branching
+   $taken_br = $is_beq ? $src1_value == $src2_value :
+               $is_bne ? $src1_value != $src2_value :
+               $is_blt ? ($src1_value < $src2_value) ^ ($src1_value[31] != $src2_value[31]) :
+               $is_bge ? ($src1_value >= $src2_value) ^ ($src1_value[31] != $src2_value[31]) :
+               $is_bltu ? $src1_value < $src2_value :
+               $is_bgeu ? $src1_value >= $src2_value :
+               1'b0;
+   
+   $br_tgt_pc[31:0] = $pc + $imm;
+   
    `BOGUS_USE($rd
               $rd_valid
               $funct3
@@ -130,7 +143,7 @@
               $is_addi)
    
    // Assert these to end simulation (before Makerchip cycle limit).
-   *passed = 1'b0;
+   m4+tb()
    *failed = *cyc_cnt > M4_MAX_CYC;
    
    // Link up read/write signals to register file
