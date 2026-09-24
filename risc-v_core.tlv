@@ -102,7 +102,7 @@
    $is_sra = $dec_bits ==? 11'b1_101_0110011;
    $is_or = $dec_bits ==? 11'b0_110_0110011;
    $is_and = $dec_bits ==? 11'b0_111_0110011;
-   $is_load = $opcode == 11'b0000011;
+   $is_load = $opcode == 7'b0000011;
    
    // ALU
    $result[31:0] =
